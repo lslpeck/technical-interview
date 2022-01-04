@@ -32,14 +32,14 @@ ui <- fluidPage(
 # Define server logic required to process the data and draw the plot
 server <- function(input, output) {
 
-    # Load data in a reactive variable
-    data <- reactive({
-        readr::read_csv("data/reviews.csv")
-    })
+    # Load data
+    #removed reactivity!
+    data <- readr::read_csv("data/reviews.csv")
+    all_report_ids <- data$ReportId
 
     # Prepare dynamic drop-down menu for asset selection
     output$asset_selection <- renderUI({
-        all_report_ids <- unique(data$ReportId)
+
         shiny::selectInput("selected_report_id",
                            label = "Select asset",
                            choices = all_report_ids)
@@ -61,8 +61,15 @@ server <- function(input, output) {
     selected_data <- reactive({
         req(input$selected_report_id)
 
-        data() %>%
+        data %>%
             filter(ReportId %in% !! input$selected_report_id)
+    })
+
+#reactive attribute data
+    selected_attribute_data <- reactive({
+        req(input$selected_attribute)
+
+        data[,6:19]
     })
 
     # Prepare a basic histogram
